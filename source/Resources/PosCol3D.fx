@@ -35,7 +35,7 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
 //------------------------------------------
 //	Technique
 //------------------------------------------
-techniaue11 DefaultTechnique
+technique11 DefaultTechnique
 {
 	pass P0
 	{
