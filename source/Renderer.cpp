@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Renderer.h"
 
+//#include "Mesh.h"
+
 namespace dae {
 
 	Renderer::Renderer(SDL_Window* pWindow) :
@@ -20,15 +22,26 @@ namespace dae {
 		{
 			std::cout << "DirectX initialization failed!\n";
 		}
+
+		//Create some data for our mesh
+		std::vector<Vertex> vertices{
+			{{ .0f,  .5f, .5f}, {1.f, 0.f, 0.f}},
+			{{ .5f, -.5f, .5f}, {0.f, 0.f, 1.f}},
+			{{-.5f, -.5f, .5f}, {0.f, 1.f, 0.f}}
+		};
+
+		std::vector<uint32_t> indices{ 0,1,2 };
+
+		m_pMesh = new Mesh(m_pDevice, vertices, indices);
 	}
 
 	Renderer::~Renderer()
 	{
-		m_pRenderTargetView->Release();
-		m_pRenderTargetBuffer->Release();
-		m_pDepthStencilView->Release();
-		m_pDepthStencilBuffer->Release();
-		m_pSwapChain->Release();
+		if(m_pRenderTargetView) m_pRenderTargetView->Release();
+		if(m_pRenderTargetBuffer) m_pRenderTargetBuffer->Release();
+		if(m_pDepthStencilView) m_pDepthStencilView->Release();
+		if(m_pDepthStencilBuffer) m_pDepthStencilBuffer->Release();
+		if(m_pSwapChain) m_pSwapChain->Release();
 		
 		if (m_pDeviceContext)
 		{
@@ -37,7 +50,9 @@ namespace dae {
 			m_pDeviceContext->Release();
 		}
 
-		m_pDevice->Release();
+		if(m_pDevice) m_pDevice->Release();
+
+		delete m_pMesh;
 	}
 
 	void Renderer::Update(const Timer* pTimer)
@@ -57,6 +72,7 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. SET PIPELINE + INVOKE DRAW CALLS (= RENDER)
+		m_pMesh->Render(m_pDeviceContext);
 
 		//3. PRESENT BACKBUFFER (SWAP)
 		m_pSwapChain->Present(0, 0);
