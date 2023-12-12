@@ -10,7 +10,8 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std
 {
 	m_pEffect = new Effect(pDevice, L"Resources/PosCol3D.fx");
 	m_pTechnique = m_pEffect->GetTechnique();
-
+	m_pMatWorldViewProjVariable = m_pEffect->GetWorldViewProjMat();
+	
 	//Create Vertex Layout
 	static constexpr uint32_t numElements{ 2 };
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
@@ -72,19 +73,23 @@ Mesh::~Mesh()
 	if (m_pDevice) m_pDevice->Release();
 	delete m_pEffect;
 	if(m_pTechnique) m_pTechnique->Release();
+	if (m_pMatWorldViewProjVariable) m_pMatWorldViewProjVariable->Release();
 
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 	if (m_pIndexBuffer) m_pIndexBuffer->Release();
 	if (m_pInputLayout) m_pInputLayout->Release();
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const float* pData) const
 {
 	//1. Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//2. Set Input Layout
 	pDeviceContext->IASetInputLayout(m_pInputLayout);
+
+	//Set Matrix
+	m_pMatWorldViewProjVariable->SetMatrix(pData);
 
 	//3. Set VertexBuffer
 	constexpr UINT stride = sizeof(Vertex);

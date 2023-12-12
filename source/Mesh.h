@@ -14,12 +14,13 @@ public:
 	Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
 	~Mesh();
 
-	void Render(ID3D11DeviceContext* pDeviceContext) const;
+	void Render(ID3D11DeviceContext* pDeviceContext, const float* pData) const;
 
 private:
 	ID3D11Device* m_pDevice{ nullptr };
 	Effect* m_pEffect{ nullptr };
 	ID3DX11EffectTechnique* m_pTechnique{ nullptr };
+	ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{ nullptr };
 
 	std::vector<Vertex> m_Vertices;
 	std::vector<uint32_t> m_Indices;

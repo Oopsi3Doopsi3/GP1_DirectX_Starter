@@ -8,12 +8,17 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 	if (!m_pTechnique->IsValid())
 		std::wcout << L"Technique not valid\n";
+
+	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
+	if (!m_pMatWorldViewProjVariable->IsValid())
+		std::wcout << L"m_pMatWorldViewProjVariable not valid!\n";
 }
 
 Effect::~Effect()
 {
 	if(m_pEffect) m_pEffect->Release();
 	if(m_pTechnique) m_pTechnique->Release();
+	if (m_pMatWorldViewProjVariable) m_pMatWorldViewProjVariable->Release();
 }
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)
@@ -73,4 +78,9 @@ ID3DX11Effect* Effect::GetEffect()
 ID3DX11EffectTechnique* Effect::GetTechnique()
 {
 	return m_pTechnique;
+}
+
+ID3DX11EffectMatrixVariable* Effect::GetWorldViewProjMat()
+{
+	return m_pMatWorldViewProjVariable;
 }

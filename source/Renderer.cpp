@@ -10,6 +10,7 @@ namespace dae {
 	{
 		//Initialize
 		SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
+		m_Camera.Initialize(static_cast<float>(m_Width) / static_cast<float>(m_Height), 45.f, { 0.f,0.f,-10.f });
 
 		//Initialize DirectX pipeline
 		const HRESULT result = InitializeDirectX();
@@ -25,9 +26,9 @@ namespace dae {
 
 		//Create some data for our mesh
 		std::vector<Vertex> vertices{
-			{{ .0f,  .5f, .5f}, {1.f, 0.f, 0.f}},
-			{{ .5f, -.5f, .5f}, {0.f, 0.f, 1.f}},
-			{{-.5f, -.5f, .5f}, {0.f, 1.f, 0.f}}
+			{{ 0.f,  3.f, 2.f}, {1.f, 0.f, 0.f}},
+			{{ 3.f, -3.f, 2.f}, {0.f, 0.f, 1.f}},
+			{{-3.f, -3.f, 2.f}, {0.f, 1.f, 0.f}}
 		};
 
 		std::vector<uint32_t> indices{ 0,1,2 };
@@ -57,7 +58,7 @@ namespace dae {
 
 	void Renderer::Update(const Timer* pTimer)
 	{
-
+		m_Camera.Update(pTimer);
 	}
 
 
@@ -72,7 +73,9 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. SET PIPELINE + INVOKE DRAW CALLS (= RENDER)
-		m_pMesh->Render(m_pDeviceContext);
+		Matrix viewProjectionMatrix = m_Camera.invViewMatrix * m_Camera.projectionMatrix;
+
+		m_pMesh->Render(m_pDeviceContext, reinterpret_cast<float*>(&viewProjectionMatrix));
 
 		//3. PRESENT BACKBUFFER (SWAP)
 		m_pSwapChain->Present(0, 0);
