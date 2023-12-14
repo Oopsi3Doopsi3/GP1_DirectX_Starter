@@ -1,10 +1,21 @@
 //------------------------------------------
 //	Global Variables
 //------------------------------------------
-cbuffer mycBuffer : register(b0)
-{
+//cbuffer mycBuffer : register(b0)
+//{
     float4x4 gWorldViewProj : WorldViewProjection;
-}
+    Texture2D gDiffuseMap : DiffuseMap;
+//}
+
+//------------------------------------------
+//	Sampler State
+//------------------------------------------
+SamplerState samPoint
+{
+    Filter = MIN_MAG_MIP_POINT;
+    AddressU = Wrap; //or Mirror, Clamp, Border
+    AddressV = Wrap; //or Mirror, Clamp, Border
+};
 
 //------------------------------------------
 //	Input/Output Structs
@@ -13,12 +24,14 @@ struct VS_INPUT
 {
 	float3 Position : POSITION;
 	float3 Color : COLOR;
+    float2 UV : TEXCOORD;
 };
 
 struct VS_OUTPUT
 {
 	float4 Position : SV_POSITION;
 	float3 Color : COLOR;
+    float2 UV : TEXCOORD;
 };
 
 //------------------------------------------
@@ -29,6 +42,7 @@ VS_OUTPUT VS(VS_INPUT input)
 	VS_OUTPUT output = (VS_OUTPUT)0;
 	output.Position = mul(float4(input.Position, 1.f), gWorldViewProj);
 	output.Color = input.Color;
+    output.UV = input.UV;
 	return output;
 }
 
@@ -37,7 +51,7 @@ VS_OUTPUT VS(VS_INPUT input)
 //------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
-	return float4(input.Color,1.f);
+    return gDiffuseMap.Sample(samPoint, input.UV);
 }
 
 //------------------------------------------

@@ -5,6 +5,7 @@ struct SDL_Surface;
 
 #include "Mesh.h"
 #include "Camera.h"
+#include "Texture.h"
 
 namespace dae
 {
@@ -54,5 +55,6 @@ namespace dae
 
 
 		Mesh* m_pMesh{nullptr};
+		Texture* m_pDiffuseTexture{ nullptr };
 	};
 }

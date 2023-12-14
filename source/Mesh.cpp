@@ -11,9 +11,10 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std
 	m_pEffect = new Effect(pDevice, L"Resources/PosCol3D.fx");
 	m_pTechnique = m_pEffect->GetTechnique();
 	m_pMatWorldViewProjVariable = m_pEffect->GetWorldViewProjMat();
+	m_pDiffuseMapVariable = m_pEffect->GetDiffuseMap();
 	
 	//Create Vertex Layout
-	static constexpr uint32_t numElements{ 2 };
+	static constexpr uint32_t numElements{ 3 };
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 	vertexDesc[0].SemanticName = "POSITION";
@@ -25,6 +26,11 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std
 	vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	vertexDesc[1].AlignedByteOffset = 12;
 	vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[2].SemanticName = "TEXCOORD";
+	vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
+	vertexDesc[2].AlignedByteOffset = 24;
+	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 	//Create Input Layout
 	D3DX11_PASS_DESC passDesc{};
@@ -74,6 +80,7 @@ Mesh::~Mesh()
 	delete m_pEffect;
 	if(m_pTechnique) m_pTechnique->Release();
 	if (m_pMatWorldViewProjVariable) m_pMatWorldViewProjVariable->Release();
+	if (m_pDiffuseMapVariable) m_pDiffuseMapVariable->Release();
 
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 	if (m_pIndexBuffer) m_pIndexBuffer->Release();
@@ -107,4 +114,10 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const float* pData) const
 		m_pTechnique->GetPassByIndex(p)->Apply(0, pDeviceContext);
 		pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 	}
+}
+
+void Mesh::SetDiffuseMap(const dae::Texture* pDiffuseTexture) const
+{
+	if (m_pDiffuseMapVariable)
+		m_pDiffuseMapVariable->SetResource(pDiffuseTexture->GetSRV());
 }

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Effect.h"
+//#include "Texture.h"
 
 Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 {
@@ -12,13 +13,18 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
 	if (!m_pMatWorldViewProjVariable->IsValid())
 		std::wcout << L"m_pMatWorldViewProjVariable not valid!\n";
+
+	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
+	if (!m_pDiffuseMapVariable->IsValid())
+		std::wcout << L"m_pDiffuseMapVariable is not valid!\n";
 }
 
 Effect::~Effect()
 {
-	if(m_pEffect) m_pEffect->Release();
-	if(m_pTechnique) m_pTechnique->Release();
+	if (m_pEffect) m_pEffect->Release();
+	if (m_pTechnique) m_pTechnique->Release();
 	if (m_pMatWorldViewProjVariable) m_pMatWorldViewProjVariable->Release();
+	if (m_pDiffuseMapVariable) m_pDiffuseMapVariable->Release();
 }
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)
@@ -70,17 +76,22 @@ ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& ass
 	return pEffect;
 }
 
-ID3DX11Effect* Effect::GetEffect()
+ID3DX11Effect* Effect::GetEffect() const
 {
 	return m_pEffect;
 }
 
-ID3DX11EffectTechnique* Effect::GetTechnique()
+ID3DX11EffectTechnique* Effect::GetTechnique() const
 {
 	return m_pTechnique;
 }
 
-ID3DX11EffectMatrixVariable* Effect::GetWorldViewProjMat()
+ID3DX11EffectMatrixVariable* Effect::GetWorldViewProjMat() const
 {
 	return m_pMatWorldViewProjVariable;
+}
+
+ID3DX11EffectShaderResourceVariable* Effect::GetDiffuseMap() const
+{
+	return m_pDiffuseMapVariable;
 }
