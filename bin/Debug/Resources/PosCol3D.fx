@@ -1,11 +1,8 @@
 //------------------------------------------
 //	Global Variables
 //------------------------------------------
-//cbuffer mycBuffer : register(b0)
-//{
-    float4x4 gWorldViewProj : WorldViewProjection;
-    Texture2D gDiffuseMap : DiffuseMap;
-//}
+float4x4 gWorldViewProj : WorldViewProjection;
+Texture2D gDiffuseMap : DiffuseMap;
 
 //------------------------------------------
 //	Sampler State
@@ -15,6 +12,20 @@ SamplerState samPoint
     Filter = MIN_MAG_MIP_POINT;
     AddressU = Wrap; //or Mirror, Clamp, Border
     AddressV = Wrap; //or Mirror, Clamp, Border
+};
+
+SamplerState samLinear
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
+SamplerState samAnisotropic
+{
+    Filter = ANISOTROPIC;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 //------------------------------------------
@@ -49,10 +60,19 @@ VS_OUTPUT VS(VS_INPUT input)
 //------------------------------------------
 //	Pixel Shader
 //------------------------------------------
-float4 PS(VS_OUTPUT input) : SV_TARGET
+float4 PS_Point(VS_OUTPUT input) : SV_TARGET
 {
     return gDiffuseMap.Sample(samPoint, input.UV);
-    return float4(pixelColor, 1.f);
+}
+
+float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
+{
+    return gDiffuseMap.Sample(samLinear, input.UV);
+}
+
+float4 PS_Anisotropic(VS_OUTPUT input) : SV_TARGET
+{
+    return gDiffuseMap.Sample(samAnisotropic, input.UV);
 }
 
 //------------------------------------------
@@ -64,6 +84,20 @@ technique11 DefaultTechnique
 	{
 		SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-		SetPixelShader( CompileShader( ps_5_0, PS() ) );
+		SetPixelShader( CompileShader( ps_5_0, PS_Point() ) );
 	}
+
+    pass P1
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, PS_Linear()));
+    }
+
+    pass P2
+    {
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, PS_Anisotropic()));
+    }
 }

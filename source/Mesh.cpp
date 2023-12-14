@@ -109,9 +109,9 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const float* pData) const
 	//5. Draw
 	D3DX11_TECHNIQUE_DESC techDesc{};
 	m_pTechnique->GetDesc(&techDesc);
-	for (UINT p = 0; p < techDesc.Passes; ++p)
+	if (m_Pass < techDesc.Passes)
 	{
-		m_pTechnique->GetPassByIndex(p)->Apply(0, pDeviceContext);
+		m_pTechnique->GetPassByIndex(m_Pass)->Apply(0, pDeviceContext);
 		pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 	}
 }
@@ -120,4 +120,9 @@ void Mesh::SetDiffuseMap(const dae::Texture* pDiffuseTexture) const
 {
 	if (m_pDiffuseMapVariable)
 		m_pDiffuseMapVariable->SetResource(pDiffuseTexture->GetSRV());
+}
+
+void Mesh::SetPass(const int passIdx)
+{
+	m_Pass = passIdx;
 }

@@ -13,6 +13,13 @@ namespace dae
 
 	class Renderer final
 	{
+	private:
+		enum class SamplerState
+		{
+			Point,
+			Linear,
+			Anisotropic
+		};
 	public:
 		Renderer(SDL_Window* pWindow);
 		~Renderer();
@@ -24,6 +31,8 @@ namespace dae
 
 		void Update(const Timer* pTimer);
 		void Render() const;
+
+		void CycleSamplerState();
 
 	private:
 		SDL_Window* m_pWindow{};
@@ -56,5 +65,6 @@ namespace dae
 
 		Mesh* m_pMesh{nullptr};
 		Texture* m_pDiffuseTexture{ nullptr };
+		SamplerState m_SamplerState = SamplerState::Point;
 	};
 }

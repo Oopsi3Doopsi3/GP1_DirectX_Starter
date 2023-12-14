@@ -20,6 +20,7 @@ public:
 	void Render(ID3D11DeviceContext* pDeviceContext, const float* pData) const;
 
 	void SetDiffuseMap(const dae::Texture* pDiffuseTexture) const;
+	void SetPass(const int passIdx);
 private:
 	ID3D11Device* m_pDevice{ nullptr };
 	Effect* m_pEffect{ nullptr };
@@ -35,5 +36,6 @@ private:
 	ID3D11InputLayout* m_pInputLayout{ nullptr };
 
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable{ nullptr };
+	UINT m_Pass{ 0 };
 };
 

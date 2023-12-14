@@ -9,7 +9,7 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 	if (!m_pTechnique->IsValid())
 		std::wcout << L"Technique not valid\n";
-
+	
 	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
 	if (!m_pMatWorldViewProjVariable->IsValid())
 		std::wcout << L"m_pMatWorldViewProjVariable not valid!\n";

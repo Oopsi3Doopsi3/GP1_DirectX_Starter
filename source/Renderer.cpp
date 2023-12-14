@@ -208,4 +208,28 @@ namespace dae {
 
 		return result;
 	}
+
+	void Renderer::CycleSamplerState()
+	{
+		switch (m_SamplerState)
+		{
+		case dae::Renderer::SamplerState::Point:
+			m_pMesh->SetPass(1);
+			m_SamplerState = SamplerState::Linear;
+			std::cout << "Linear\n";
+			break;
+		case dae::Renderer::SamplerState::Linear:
+			m_pMesh->SetPass(2);
+			m_SamplerState = SamplerState::Anisotropic;
+			std::cout << "Anisotropic\n";
+			break;
+		case dae::Renderer::SamplerState::Anisotropic:
+			m_pMesh->SetPass(0);
+			m_SamplerState = SamplerState::Point;
+			std::cout << "Point\n";
+			break;
+		default:
+			break;
+		}
+	}
 }
