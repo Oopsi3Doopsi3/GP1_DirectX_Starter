@@ -9,6 +9,8 @@ struct Vertex
 	dae::Vector3 position;
 	dae::ColorRGB color;
 	dae::Vector2 uv;
+	dae::Vector3 normal;
+	dae::Vector3 tangent;
 };
 
 class Mesh

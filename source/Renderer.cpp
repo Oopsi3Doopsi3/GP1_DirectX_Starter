@@ -2,6 +2,7 @@
 #include "Renderer.h"
 
 //#include "Mesh.h"
+#include "Utils.h"
 
 namespace dae {
 
@@ -10,7 +11,7 @@ namespace dae {
 	{
 		//Initialize
 		SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
-		m_Camera.Initialize(static_cast<float>(m_Width) / static_cast<float>(m_Height), 45.f, { 0.f,0.f,-10.f });
+		m_Camera.Initialize(static_cast<float>(m_Width) / static_cast<float>(m_Height), 45.f, { 0.f,0.f,-50.f });
 
 		//Initialize DirectX pipeline
 		const HRESULT result = InitializeDirectX();
@@ -25,6 +26,9 @@ namespace dae {
 		}
 
 		//Create some data for our mesh
+		// ----------------------
+		// BASIC TRIANGLE
+		// ----------------------
 		//std::vector<Vertex> vertices{
 		//	{{ 0.f,  3.f, 2.f}, {1.f, 0.f, 0.f}},
 		//	{{ 3.f, -3.f, 2.f}, {0.f, 0.f, 1.f}},
@@ -34,18 +38,31 @@ namespace dae {
 		//std::vector<uint32_t> indices{ 0,1,2 };
 		//
 		//m_pMesh = new Mesh(m_pDevice, vertices, indices);
+		
+		// --------------------
+		// BASIC QUAD
+		//---------------------
+		//std::vector<Vertex> verticesQuad{
+		//	{{-3.f, 3.f, -2.f}, {}, {0.f, 0.f}},
+		//	{{3.f, 3.f, -2.f}, {}, {1.f, 0.f}},
+		//	{{-3.f, -3.f, -2.f}, {}, {0.f, 1.f}},
+		//	{{3.f, -3.f , -2.f}, {}, {1.f, 1.f}}
+		//};
+		//
+		//std::vector<uint32_t> indicesQuad{ 0,1,2,2,1,3 };
+		//
+		//m_pMesh = new Mesh(m_pDevice, verticesQuad, indicesQuad);
+		//m_pDiffuseTexture = Texture::LoadFromFile("Resources/uv_grid_2.png", m_pDevice);
+		//m_pMesh->SetDiffuseMap(m_pDiffuseTexture);
 
-		std::vector<Vertex> verticesQuad{
-			{{-3.f, 3.f, -2.f}, {}, {0.f, 0.f}},
-			{{3.f, 3.f, -2.f}, {}, {1.f, 0.f}},
-			{{-3.f, -3.f, -2.f}, {}, {0.f, 1.f}},
-			{{3.f, -3.f , -2.f}, {}, {1.f, 1.f}}
-		};
-		
-		std::vector<uint32_t> indicesQuad{ 0,1,2,2,1,3 };
-		
-		m_pMesh = new Mesh(m_pDevice, verticesQuad, indicesQuad);
-		m_pDiffuseTexture = Texture::LoadFromFile("Resources/uv_grid_2.png", m_pDevice);
+		//---------------------
+		// VEHICLE
+		//---------------------
+		std::vector<Vertex> verticesVehicle{};
+		std::vector<uint32_t> indicesVehicle{};
+		Utils::ParseOBJ("Resources/vehicle.obj", verticesVehicle, indicesVehicle);
+		m_pMesh = new Mesh(m_pDevice, verticesVehicle, indicesVehicle);
+		m_pDiffuseTexture = Texture::LoadFromFile("Resources/vehicle_diffuse.png", m_pDevice);
 		m_pMesh->SetDiffuseMap(m_pDiffuseTexture);
 	}
 
@@ -72,6 +89,8 @@ namespace dae {
 	void Renderer::Update(const Timer* pTimer)
 	{
 		m_Camera.Update(pTimer);
+
+		m_YawRotation += pTimer->GetElapsed() * PI / 4.f;
 	}
 
 
@@ -86,7 +105,7 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. SET PIPELINE + INVOKE DRAW CALLS (= RENDER)
-		Matrix viewProjectionMatrix = m_Camera.invViewMatrix * m_Camera.projectionMatrix;
+		Matrix viewProjectionMatrix = Matrix::CreateRotationY(m_YawRotation) * m_Camera.invViewMatrix * m_Camera.projectionMatrix;
 
 		m_pMesh->Render(m_pDeviceContext, reinterpret_cast<float*>(&viewProjectionMatrix));
 

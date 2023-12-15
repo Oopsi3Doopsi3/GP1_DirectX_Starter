@@ -66,5 +66,6 @@ namespace dae
 		Mesh* m_pMesh{nullptr};
 		Texture* m_pDiffuseTexture{ nullptr };
 		SamplerState m_SamplerState = SamplerState::Point;
+		float m_YawRotation{};
 	};
 }
