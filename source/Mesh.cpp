@@ -2,16 +2,19 @@
 #include "Mesh.h"
 #include "Effect.h"
 #include <cassert>
+#include "Utils.h"
 
-Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices):
-	m_Vertices{vertices},
-	m_Indices{indices}
+Mesh::Mesh(ID3D11Device* pDevice, const std::string& filename, Effect* pEffect)
+	:m_pEffect{pEffect}
 {
-	m_pEffect = new Effect(pDevice, L"Resources/PosCol3D.fx");
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
+
+	if (!dae::Utils::ParseOBJ("Resources/vehicle.obj", vertices, indices))
+		std::cout << "Couldn't find file to parse\n";
+
+	//m_pEffect = new Effect(pDevice, L"Resources/PosCol3D.fx");
 	m_pTechnique = m_pEffect->GetTechnique();
-	
-	InitializeVariables();
-	InitializeTextures();
 	
 	//Create Vertex Layout
 	static constexpr uint32_t numElements{ 5 };
@@ -84,44 +87,6 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std
 		return;
 }
 
-void Mesh::InitializeVariables()
-{
-	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
-	if (!m_pMatWorldViewProjVariable->IsValid())
-		std::wcout << L"m_pMatWorldViewProjVariable not valid!\n";
-
-	m_pWorldMatrixVariable = m_pEffect->GetVariableByName("gWorldMatrix")->AsMatrix();
-	if (!m_pWorldMatrixVariable->IsValid())
-		std::wcout << L"m_pWorldMatrixVariable not valid!\n";
-
-	m_pViewInverseVariable = m_pEffect->GetVariableByName("gViewInverseMatrix")->AsMatrix();
-	if (!m_pViewInverseVariable->IsValid())
-		std::wcout << L"m_pViewInverseVariable not valid!\n";
-
-	m_pUseNormalMap = m_pEffect->GetVariableByName("gUseNormalMap")->AsScalar();
-	if (!m_pUseNormalMap->IsValid())
-		std::wcout << L"m_pUseNormalMap not valid!\n";
-}
-
-void Mesh::InitializeTextures()
-{
-	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
-	if (!m_pDiffuseMapVariable->IsValid())
-		std::wcout << L"m_pDiffuseMapVariable is not valid!\n";
-
-	m_pNormalMapVariable = m_pEffect->GetVariableByName("gNormalMap")->AsShaderResource();
-	if (!m_pNormalMapVariable->IsValid())
-		std::wcout << L"m_pNormalMapVariable is not valid!\n";
-
-	m_pSpecularMapVariable = m_pEffect->GetVariableByName("gSpecularMap")->AsShaderResource();
-	if (!m_pSpecularMapVariable->IsValid())
-		std::wcout << L"m_pSpecularMapVariable is not valid!\n";
-
-	m_pGlossinessMapVariable = m_pEffect->GetVariableByName("gGlossinessMap")->AsShaderResource();
-	if (!m_pGlossinessMapVariable->IsValid())
-		std::wcout << L"m_pGlossinessMapVariable is not valid!\n";
-}
-
 Mesh::~Mesh()
 {
 	delete m_pEffect;
@@ -129,15 +94,6 @@ Mesh::~Mesh()
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 	if (m_pIndexBuffer) m_pIndexBuffer->Release();
 	if (m_pInputLayout) m_pInputLayout->Release();
-
-	if (m_pMatWorldViewProjVariable) m_pMatWorldViewProjVariable->Release();
-	if (m_pWorldMatrixVariable) m_pWorldMatrixVariable->Release();
-	if (m_pViewInverseVariable) m_pViewInverseVariable->Release();
-
-	if (m_pDiffuseMapVariable) m_pDiffuseMapVariable->Release();
-	if (m_pNormalMapVariable) m_pNormalMapVariable->Release();
-	if (m_pSpecularMapVariable) m_pSpecularMapVariable->Release();
-	if (m_pGlossinessMapVariable) m_pGlossinessMapVariable->Release();
 }
 
 void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
@@ -169,9 +125,9 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 void Mesh::Update(const dae::Matrix projectionMatrix, const dae::Matrix& inverseViewMatrix)
 {
 	dae::Matrix worldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
-	SetMatWorldViewProj(worldMatrix * inverseViewMatrix * projectionMatrix);
-	SetWorldMatrixVariable(worldMatrix);
-	SetViewInverseVariable(inverseViewMatrix);
+	m_pEffect->SetMatWorldViewProj(worldMatrix * inverseViewMatrix * projectionMatrix);
+	m_pEffect->SetWorldMatrixVariable(worldMatrix);
+	m_pEffect->SetViewInverseVariable(inverseViewMatrix);
 }
 
 void Mesh::RotateX(const float angle)
@@ -189,45 +145,7 @@ void Mesh::RotateZ(const float angle)
 	m_RotationMatrix = dae::Matrix::CreateRotationZ(angle) * m_RotationMatrix;
 }
 
-void Mesh::SetMatWorldViewProj(const dae::Matrix& matrix) const
+void Mesh::SetUseNormalMap(const bool useNormalMap)
 {
-	m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&matrix));
-}
-void Mesh::SetWorldMatrixVariable(const dae::Matrix& matrix) const
-{
-	m_pWorldMatrixVariable->SetMatrix(reinterpret_cast<const float*>(&matrix));
-}
-
-void Mesh::SetViewInverseVariable(const dae::Matrix& matrix) const
-{
-	m_pViewInverseVariable->SetMatrix(reinterpret_cast<const float*>(&matrix));
-}
-
-void Mesh::SetDiffuseMap(const dae::Texture* pDiffuseTexture) const
-{
-	if (pDiffuseTexture)
-		m_pDiffuseMapVariable->SetResource(pDiffuseTexture->GetSRV());
-}
-
-void Mesh::SetNormalMap(const dae::Texture* pNormalTexture) const
-{
-	if (pNormalTexture)
-		m_pNormalMapVariable->SetResource(pNormalTexture->GetSRV());
-}
-
-void Mesh::SetSpecularMap(const dae::Texture* pSpecularTexture) const
-{
-	if (pSpecularTexture)
-		m_pSpecularMapVariable->SetResource(pSpecularTexture->GetSRV());
-}
-
-void Mesh::SetGlossinessMap(const dae::Texture* pGlossinessTexture) const
-{
-	if (pGlossinessTexture)
-		m_pGlossinessMapVariable->SetResource(pGlossinessTexture->GetSRV());
-}
-
-void Mesh::SetUseNormalMap(const bool useNormalMap) const
-{
-	m_pUseNormalMap->SetBool(useNormalMap);
+	m_pEffect->SetUseNormalMap(useNormalMap);
 }

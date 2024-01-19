@@ -103,7 +103,7 @@ float3 ShadePixel(VS_OUTPUT input, SamplerState state)
     const float3 lambertDiffuse = gDiffuseMap.Sample(state, input.UV) * gLightIntensity / gPi;
     
     //Specular
-    const float3 viewDir = normalize(input.Position.xyz - gViewInverseMatrix[3].xyz);
+    const float3 viewDir = normalize(gViewInverseMatrix[3].xyz - input.Position.xyz);
     const float specularColor = gSpecularMap.Sample(state, input.UV);
     const float phongExponent = gGlossinessMap.Sample(state, input.UV).r * gShininess;
     const float3 reflection = reflect(-gLightDirection, normal);

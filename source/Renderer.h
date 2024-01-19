@@ -3,13 +3,14 @@
 struct SDL_Window;
 struct SDL_Surface;
 
-#include "Mesh.h"
 #include "Camera.h"
 #include "Texture.h"
 
+class ShadingEffect;
+class Mesh;
+
 namespace dae
 {
-	//class Mesh;
 
 	class Renderer final
 	{
@@ -65,7 +66,9 @@ namespace dae
 		ID3D11RenderTargetView* m_pRenderTargetView{};
 
 
-		Mesh* m_pMesh{nullptr};
+		std::vector<Mesh*> m_pMeshes{};
+
+		ShadingEffect* m_pShadingEffect{ nullptr };
 		Texture* m_pDiffuseTexture{ nullptr };
 		Texture* m_pNormalTexture{ nullptr };
 		Texture* m_pSpecularTexture{ nullptr };

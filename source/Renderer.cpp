@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "Renderer.h"
 
-//#include "Mesh.h"
+#include "Mesh.h"
 #include "Utils.h"
+#include "ShadingEffect.h"
 
 namespace dae {
 
@@ -58,20 +59,20 @@ namespace dae {
 		//---------------------
 		// VEHICLE
 		//---------------------
-		std::vector<Vertex> verticesVehicle{};
-		std::vector<uint32_t> indicesVehicle{};
-		Utils::ParseOBJ("Resources/vehicle.obj", verticesVehicle, indicesVehicle);
-		m_pMesh = new Mesh(m_pDevice, verticesVehicle, indicesVehicle);
+		m_pShadingEffect = new ShadingEffect{ m_pDevice, L"Resources/PosCol3D.fx" };
 
 		m_pDiffuseTexture = Texture::LoadFromFile("Resources/vehicle_diffuse.png", m_pDevice);
 		m_pNormalTexture = Texture::LoadFromFile("Resources/vehicle_normal.png", m_pDevice);
 		m_pSpecularTexture = Texture::LoadFromFile("Resources/vehicle_specular.png", m_pDevice);
 		m_pGlossinessTexture = Texture::LoadFromFile("Resources/vehicle_gloss.png", m_pDevice);
 
-		m_pMesh->SetDiffuseMap(m_pDiffuseTexture);
-		m_pMesh->SetNormalMap(m_pNormalTexture);
-		m_pMesh->SetSpecularMap(m_pSpecularTexture);
-		m_pMesh->SetGlossinessMap(m_pGlossinessTexture);
+		m_pShadingEffect->SetDiffuseMap(m_pDiffuseTexture);
+		m_pShadingEffect->SetNormalMap(m_pNormalTexture);
+		m_pShadingEffect->SetSpecularMap(m_pSpecularTexture);
+		m_pShadingEffect->SetGlossinessMap(m_pGlossinessTexture);
+
+		m_pMeshes.push_back(new Mesh{ m_pDevice, "Resources/vehicle.obj", m_pShadingEffect });
+		
 	}
 
 	Renderer::~Renderer()
@@ -91,7 +92,13 @@ namespace dae {
 
 		if(m_pDevice) m_pDevice->Release();
 
-		delete m_pMesh;
+		for (auto& pMesh : m_pMeshes)
+		{
+			delete pMesh;
+		}
+		m_pMeshes.clear();
+
+		delete m_pShadingEffect;
 
 		delete m_pDiffuseTexture;
 		delete m_pNormalTexture;
@@ -106,10 +113,16 @@ namespace dae {
 		if(m_Rotate)
 		{
 			constexpr float rotationSpeed{ 45.f };
-			m_pMesh->RotateY(rotationSpeed * TO_RADIANS * pTimer->GetElapsed());
+			for (auto& pMesh : m_pMeshes)
+			{
+				pMesh->RotateY(rotationSpeed * TO_RADIANS * pTimer->GetElapsed());
+			}
 		}
 		
-		m_pMesh->Update(m_Camera.projectionMatrix, m_Camera.GetViewMatrix());
+		for (auto& pMesh : m_pMeshes)
+		{
+			pMesh->Update(m_Camera.projectionMatrix, m_Camera.GetViewMatrix());
+		}
 	}
 
 
@@ -124,7 +137,10 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. SET PIPELINE + INVOKE DRAW CALLS (= RENDER)
-		m_pMesh->Render(m_pDeviceContext);
+		for(auto& pMesh : m_pMeshes)
+		{
+			pMesh->Render(m_pDeviceContext);
+		}
 
 		//3. PRESENT BACKBUFFER (SWAP)
 		m_pSwapChain->Present(0, 0);
@@ -250,17 +266,26 @@ namespace dae {
 		switch (m_SamplerState)
 		{
 		case dae::Renderer::SamplerState::Point:
-			m_pMesh->SetPass(1);
+			for (auto& pMesh : m_pMeshes)
+			{
+				pMesh->SetPass(1);
+			}
 			m_SamplerState = SamplerState::Linear;
 			std::cout << "Linear\n";
 			break;
 		case dae::Renderer::SamplerState::Linear:
-			m_pMesh->SetPass(2);
+			for (auto& pMesh : m_pMeshes)
+			{
+				pMesh->SetPass(2);
+			}
 			m_SamplerState = SamplerState::Anisotropic;
 			std::cout << "Anisotropic\n";
 			break;
 		case dae::Renderer::SamplerState::Anisotropic:
-			m_pMesh->SetPass(0);
+			for (auto& pMesh : m_pMeshes)
+			{
+				pMesh->SetPass(0);
+			}
 			m_SamplerState = SamplerState::Point;
 			std::cout << "Point\n";
 			break;
@@ -277,7 +302,7 @@ namespace dae {
 	void Renderer::ToggleNormalMap()
 	{
 		m_UseNormalMap = !m_UseNormalMap;
-		m_pMesh->SetUseNormalMap(m_UseNormalMap);
+		m_pMeshes[0]->SetUseNormalMap(m_UseNormalMap);
 		std::cout << "Normal map: " << m_UseNormalMap << std::endl;
 	}
 }
