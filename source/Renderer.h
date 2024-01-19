@@ -72,7 +72,7 @@ namespace dae
 		Texture* m_pGlossinessTexture{ nullptr };
 
 		SamplerState m_SamplerState = SamplerState::Point;
-		bool m_Rotate{ true };
+		bool m_Rotate{ false };
 		bool m_UseNormalMap{ true };
 	};
 }

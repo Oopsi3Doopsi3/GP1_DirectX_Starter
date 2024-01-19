@@ -104,7 +104,7 @@ float3 ShadePixel(VS_OUTPUT input, SamplerState state)
     
     //Specular
     const float3 viewDir = normalize(input.Position.xyz - gViewInverseMatrix[3].xyz);
-    const float specularColor = gSpecularMap.Sample(state, input.UV).rgb;
+    const float specularColor = gSpecularMap.Sample(state, input.UV);
     const float phongExponent = gGlossinessMap.Sample(state, input.UV).r * gShininess;
     const float3 reflection = reflect(-gLightDirection, normal);
     const float cosAlpha = saturate(dot(reflection, -viewDir));

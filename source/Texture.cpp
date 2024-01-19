@@ -83,15 +83,9 @@ namespace dae
 		//TODO
 		//Sample the correct texel for the given uv
 
-		//clamp
-		//while (uv.x > 1) uv.x -= 1;
-		//while (uv.x < 0) uv.x += 1;
-		//while (uv.y > 1) uv.y -= 1;
-		//while (uv.y < 0) uv.y += 1;
-
 		//Convert from [0,1] to [0, width/height]
-		const int u = uv.x * m_pSurface->w;
-		const int v = uv.y * m_pSurface->h;
+		const int u = static_cast<int>(uv.x * m_pSurface->w);
+		const int v = static_cast<int>(uv.y * m_pSurface->h);
 
 		//Convert to single array
 		const int surfacePixel = m_pSurfacePixels[u + v * m_pSurface->w];
