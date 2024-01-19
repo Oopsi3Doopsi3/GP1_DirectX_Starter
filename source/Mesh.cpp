@@ -97,6 +97,10 @@ void Mesh::InitializeVariables()
 	m_pViewInverseVariable = m_pEffect->GetVariableByName("gViewInverseMatrix")->AsMatrix();
 	if (!m_pViewInverseVariable->IsValid())
 		std::wcout << L"m_pViewInverseVariable not valid!\n";
+
+	m_pUseNormalMap = m_pEffect->GetVariableByName("gUseNormalMap")->AsScalar();
+	if (!m_pUseNormalMap->IsValid())
+		std::wcout << L"m_pUseNormalMap not valid!\n";
 }
 
 void Mesh::InitializeTextures()
@@ -221,4 +225,9 @@ void Mesh::SetGlossinessMap(const dae::Texture* pGlossinessTexture) const
 {
 	if (pGlossinessTexture)
 		m_pGlossinessMapVariable->SetResource(pGlossinessTexture->GetSRV());
+}
+
+void Mesh::SetUseNormalMap(const bool useNormalMap) const
+{
+	m_pUseNormalMap->SetBool(useNormalMap);
 }

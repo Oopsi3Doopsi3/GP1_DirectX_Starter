@@ -103,9 +103,11 @@ namespace dae {
 	{
 		m_Camera.Update(pTimer);
 
-		constexpr float rotationSpeed{ 45.f };
-
-		m_pMesh->RotateY(rotationSpeed * TO_RADIANS * pTimer->GetElapsed());
+		if(m_Rotate)
+		{
+			constexpr float rotationSpeed{ 45.f };
+			m_pMesh->RotateY(rotationSpeed * TO_RADIANS * pTimer->GetElapsed());
+		}
 		
 		m_pMesh->Update(m_Camera.projectionMatrix, m_Camera.GetViewMatrix());
 	}
@@ -265,5 +267,17 @@ namespace dae {
 		default:
 			break;
 		}
+	}
+
+	void Renderer::ToggleRotate()
+	{
+		m_Rotate = !m_Rotate;
+	}
+
+	void Renderer::ToggleNormalMap()
+	{
+		m_UseNormalMap = !m_UseNormalMap;
+		m_pMesh->SetUseNormalMap(m_UseNormalMap);
+		std::cout << "Normal map: " << m_UseNormalMap << std::endl;
 	}
 }

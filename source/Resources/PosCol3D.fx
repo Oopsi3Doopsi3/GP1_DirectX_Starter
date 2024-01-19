@@ -11,6 +11,7 @@ Texture2D gGlossinessMap : GlossinessMap;
 float4x4 gWorldMatrix : WorldMatrix;
 float4x4 gViewInverseMatrix : ViewInverse;
 
+bool gUseNormalMap : UseNormalMap;
 float3 gLightDirection = normalize(float3(.577f, -.577f, .577f));
 float gPi = 3.141592653589793f;
 float gLightIntensity = 7.f;
@@ -82,16 +83,20 @@ VS_OUTPUT VS(VS_INPUT input)
 float3 ShadePixel(VS_OUTPUT input, SamplerState state)
 {
     //Normal
-    const float3 binormal = cross(input.Normal, input.Tangent);
-    const float4x4 tangentSpaceAxis = float4x4
-    (
-        float4(input.Tangent, 0.f),
-		float4(binormal, 0.f),
-		float4(input.Normal, 0.f),
-		float4(0.f, 0.f, 0.f, 1.f)
-	);
-    const float3 sampledNormal = 2.f * gNormalMap.Sample(state, input.UV).rgb - float3(1.f, 1.f, 1.f);
-    const float3 normal = mul(float4(sampledNormal, 0.f), tangentSpaceAxis);
+    float3 normal = input.Normal;
+    if(gUseNormalMap)
+    {
+        const float3 binormal = cross(input.Normal, input.Tangent);
+        const float4x4 tangentSpaceAxis = float4x4
+        (
+            float4(input.Tangent, 0.f),
+	    	float4(binormal, 0.f),
+	    	float4(input.Normal, 0.f),
+	    	float4(0.f, 0.f, 0.f, 1.f)
+	    );
+        const float3 sampledNormal = 2.f * gNormalMap.Sample(state, input.UV).rgb - float3(1.f, 1.f, 1.f);
+        normal = mul(float4(sampledNormal, 0.f), tangentSpaceAxis);
+    }
     
     //OA and lambertDiffuse
     const float observedArea = saturate(dot(normal, -gLightDirection));

@@ -33,6 +33,8 @@ namespace dae
 		void Render() const;
 
 		void CycleSamplerState();
+		void ToggleRotate();
+		void ToggleNormalMap();
 
 	private:
 		SDL_Window* m_pWindow{};
@@ -68,6 +70,9 @@ namespace dae
 		Texture* m_pNormalTexture{ nullptr };
 		Texture* m_pSpecularTexture{ nullptr };
 		Texture* m_pGlossinessTexture{ nullptr };
+
 		SamplerState m_SamplerState = SamplerState::Point;
+		bool m_Rotate{ true };
+		bool m_UseNormalMap{ true };
 	};
 }

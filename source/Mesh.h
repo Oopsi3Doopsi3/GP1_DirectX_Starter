@@ -32,6 +32,7 @@ public:
 	void SetSpecularMap(const dae::Texture* pSpecularTexture) const;
 	void SetGlossinessMap(const dae::Texture* pGlossinessTexture) const;
 
+	void SetUseNormalMap(const bool useNormalMap) const;
 	void SetPass(const int passIdx) {m_Pass = passIdx;};
 private:
 	//Effect
@@ -56,6 +57,7 @@ private:
 	ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{ nullptr };
 	ID3DX11EffectMatrixVariable* m_pWorldMatrixVariable{ nullptr };
 	ID3DX11EffectMatrixVariable* m_pViewInverseVariable{ nullptr };
+	ID3DX11EffectScalarVariable* m_pUseNormalMap{ nullptr };
 
 	//Texture Maps
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable{ nullptr };
