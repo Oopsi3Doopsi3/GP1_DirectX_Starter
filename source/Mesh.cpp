@@ -10,7 +10,7 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::string& filename, Effect* pEffect)
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
-	if (!dae::Utils::ParseOBJ("Resources/vehicle.obj", vertices, indices))
+	if (!dae::Utils::ParseOBJ(filename, vertices, indices))
 		std::cout << "Couldn't find file to parse\n";
 
 	//m_pEffect = new Effect(pDevice, L"Resources/PosCol3D.fx");

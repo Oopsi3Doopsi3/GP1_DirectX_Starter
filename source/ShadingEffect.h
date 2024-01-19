@@ -1,6 +1,7 @@
 #pragma once
 #include "Effect.h"
-#include "Texture.h"
+
+class dae::Texture;
 
 class ShadingEffect final : public Effect
 {

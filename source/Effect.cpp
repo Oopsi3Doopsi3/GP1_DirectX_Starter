@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Effect.h"
-//#include "Texture.h"
 
 using namespace dae;
 
@@ -99,7 +98,7 @@ void Effect::SetViewInverseVariable(const Matrix& matrix) const
 }
 
 //Texture
-void Effect::SetDiffuseMap(const dae::Texture* pDiffuseTexture)
+void Effect::SetDiffuseMap(const Texture* pDiffuseTexture)
 {
 	if (pDiffuseTexture)
 		m_pDiffuseMapVariable->SetResource(pDiffuseTexture->GetSRV());

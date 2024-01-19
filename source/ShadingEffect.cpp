@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "ShadingEffect.h"
-//#include "Texture.h"
 
 ShadingEffect::ShadingEffect(ID3D11Device* pDevice, const std::wstring& asssetFile)
 	:Effect(pDevice, asssetFile)

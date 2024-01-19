@@ -39,7 +39,7 @@ namespace dae {
 		//std::vector<uint32_t> indices{ 0,1,2 };
 		//
 		//m_pMesh = new Mesh(m_pDevice, vertices, indices);
-		
+
 		// --------------------
 		// BASIC QUAD
 		//---------------------
@@ -72,7 +72,14 @@ namespace dae {
 		m_pShadingEffect->SetGlossinessMap(m_pGlossinessTexture);
 
 		m_pMeshes.push_back(new Mesh{ m_pDevice, "Resources/vehicle.obj", m_pShadingEffect });
+
+
+		m_pEffect = new Effect{ m_pDevice, L"Resources/PartialCoverage3D.fx" };
+
+		m_pFireDiffuse = Texture::LoadFromFile("Resources/fireFX_diffuse.png", m_pDevice);
+		m_pEffect->SetDiffuseMap(m_pFireDiffuse);
 		
+		m_pMeshes.push_back(new Mesh{ m_pDevice, "Resources/fireFX.obj", m_pEffect });
 	}
 
 	Renderer::~Renderer()

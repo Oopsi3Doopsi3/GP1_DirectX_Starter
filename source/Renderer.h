@@ -6,6 +6,7 @@ struct SDL_Surface;
 #include "Camera.h"
 #include "Texture.h"
 
+class Effect;
 class ShadingEffect;
 class Mesh;
 
@@ -73,6 +74,9 @@ namespace dae
 		Texture* m_pNormalTexture{ nullptr };
 		Texture* m_pSpecularTexture{ nullptr };
 		Texture* m_pGlossinessTexture{ nullptr };
+
+		Effect* m_pEffect{ nullptr };
+		Texture* m_pFireDiffuse{ nullptr };
 
 		SamplerState m_SamplerState = SamplerState::Point;
 		bool m_Rotate{ false };
