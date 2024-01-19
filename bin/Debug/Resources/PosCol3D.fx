@@ -3,6 +3,14 @@
 //------------------------------------------
 float4x4 gWorldViewProj : WorldViewProjection;
 Texture2D gDiffuseMap : DiffuseMap;
+Texture2D gNormalMap : NormalMap;
+Texture2D gSpecularMap : SpecularMap;
+Texture2D gGlossinessMap : GlossinessMap;
+float3 gLightDirection : LightDirection;
+float4x4 gWorldMatrix : WorldMatrix;
+float3 gCameraPostition : CameraPosition;
+float gLightIntensity : LightIntensity;
+float gShininess : Shininess;
 
 //------------------------------------------
 //	Sampler State

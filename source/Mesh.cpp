@@ -4,7 +4,6 @@
 #include <cassert>
 
 Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices):
-	m_pDevice{pDevice},
 	m_Vertices{vertices},
 	m_Indices{indices}
 {
@@ -76,11 +75,7 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std
 
 Mesh::~Mesh()
 {
-	if (m_pDevice) m_pDevice->Release();
 	delete m_pEffect;
-	if(m_pTechnique) m_pTechnique->Release();
-	if (m_pMatWorldViewProjVariable) m_pMatWorldViewProjVariable->Release();
-	if (m_pDiffuseMapVariable) m_pDiffuseMapVariable->Release();
 
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 	if (m_pIndexBuffer) m_pIndexBuffer->Release();

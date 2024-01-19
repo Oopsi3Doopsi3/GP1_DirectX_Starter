@@ -84,6 +84,7 @@ namespace dae {
 		if(m_pDevice) m_pDevice->Release();
 
 		delete m_pMesh;
+		delete m_pDiffuseTexture;
 	}
 
 	void Renderer::Update(const Timer* pTimer)

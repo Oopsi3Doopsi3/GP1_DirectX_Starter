@@ -24,7 +24,6 @@ public:
 	void SetDiffuseMap(const dae::Texture* pDiffuseTexture) const;
 	void SetPass(const int passIdx);
 private:
-	ID3D11Device* m_pDevice{ nullptr };
 	Effect* m_pEffect{ nullptr };
 	ID3DX11EffectTechnique* m_pTechnique{ nullptr };
 	ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{ nullptr };

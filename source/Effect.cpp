@@ -14,17 +14,27 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	if (!m_pMatWorldViewProjVariable->IsValid())
 		std::wcout << L"m_pMatWorldViewProjVariable not valid!\n";
 
+	//Texture maps
 	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
 	if (!m_pDiffuseMapVariable->IsValid())
 		std::wcout << L"m_pDiffuseMapVariable is not valid!\n";
+
+	m_pNormalMapVariable = m_pEffect->GetVariableByName("gNormalMap")->AsShaderResource();
+	if (!m_pNormalMapVariable->IsValid())
+		std::wcout << L"m_pNormalMapVariable is not valid!\n";
+
+	m_pSpecularMapVariable = m_pEffect->GetVariableByName("gSpecularMap")->AsShaderResource();
+	if (!m_pSpecularMapVariable->IsValid())
+		std::wcout << L"m_pSpecularMapVariable is not valid!\n";
+
+	m_pGlossinessMapVariable = m_pEffect->GetVariableByName("gGlossinessMap")->AsShaderResource();
+	if (!m_pGlossinessMapVariable->IsValid())
+		std::wcout << L"m_pGlossinessMapVariable is not valid!\n";
 }
 
 Effect::~Effect()
 {
 	if (m_pEffect) m_pEffect->Release();
-	if (m_pTechnique) m_pTechnique->Release();
-	if (m_pMatWorldViewProjVariable) m_pMatWorldViewProjVariable->Release();
-	if (m_pDiffuseMapVariable) m_pDiffuseMapVariable->Release();
 }
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)
@@ -95,3 +105,20 @@ ID3DX11EffectShaderResourceVariable* Effect::GetDiffuseMap() const
 {
 	return m_pDiffuseMapVariable;
 }
+
+ID3DX11EffectShaderResourceVariable* Effect::GetNormalMap() const
+{
+	return m_pNormalMapVariable;
+}
+
+ID3DX11EffectShaderResourceVariable* Effect::GetSpecularMap() const
+{
+	return m_pSpecularMapVariable;
+}
+
+ID3DX11EffectShaderResourceVariable* Effect::GetGlossinessMap() const
+{
+	return m_pGlossinessMapVariable;
+}
+
+

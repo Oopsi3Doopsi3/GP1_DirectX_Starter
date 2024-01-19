@@ -2,7 +2,17 @@
 //	Global Variables
 //------------------------------------------
 float4x4 gWorldViewProj : WorldViewProjection;
+
 Texture2D gDiffuseMap : DiffuseMap;
+Texture2D gNormalMap : NormalMap;
+Texture2D gSpecularMap : SpecularMap;
+Texture2D gGlossinessMap : GlossinessMap;
+
+float3 gLightDirection : LightDirection;
+float4x4 gWorldMatrix : WorldMatrix;
+float3 gCameraPostition : CameraPosition;
+float gLightIntensity : LightIntensity;
+float gShininess : Shininess;
 
 //------------------------------------------
 //	Sampler State
@@ -36,6 +46,8 @@ struct VS_INPUT
 	float3 Position : POSITION;
 	float3 Color : COLOR;
     float2 UV : TEXCOORD;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
 };
 
 struct VS_OUTPUT
@@ -43,6 +55,8 @@ struct VS_OUTPUT
 	float4 Position : SV_POSITION;
 	float3 Color : COLOR;
     float2 UV : TEXCOORD;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
 };
 
 //------------------------------------------
