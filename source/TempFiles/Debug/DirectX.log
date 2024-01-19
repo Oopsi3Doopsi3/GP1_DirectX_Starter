@@ -1,11 +1,11 @@
-﻿  Effect.cpp
-  Mesh.cpp
+﻿  Mesh.cpp
+  Renderer.cpp
+  main.cpp
   Generating Code...
-  DirectX.vcxproj -> C:\Graphics Programming\GP1_DirectX_Starter\bin\Debug\DirectX.exe
+  DirectX.vcxproj -> C:\Users\Bert\Documents\Brit\DAE\Graphics Programming 1\GP1_DirectX_Starter\bin\Debug\DirectX.exe
   0 File(s) copied
   0 File(s) copied
   0 File(s) copied
   0 File(s) copied
   0 File(s) copied
-  C:\Graphics Programming\GP1_DirectX_Starter\source\Resources\PosCol3D.fx
-  1 File(s) copied
+  0 File(s) copied

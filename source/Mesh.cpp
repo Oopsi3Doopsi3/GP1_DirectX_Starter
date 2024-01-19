@@ -9,11 +9,12 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std
 {
 	m_pEffect = new Effect(pDevice, L"Resources/PosCol3D.fx");
 	m_pTechnique = m_pEffect->GetTechnique();
-	m_pMatWorldViewProjVariable = m_pEffect->GetWorldViewProjMat();
-	m_pDiffuseMapVariable = m_pEffect->GetDiffuseMap();
+	
+	InitializeVariables();
+	InitializeTextures();
 	
 	//Create Vertex Layout
-	static constexpr uint32_t numElements{ 3 };
+	static constexpr uint32_t numElements{ 5 };
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 	vertexDesc[0].SemanticName = "POSITION";
@@ -30,6 +31,16 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std
 	vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
 	vertexDesc[2].AlignedByteOffset = 24;
 	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[3].SemanticName = "NORMAL";
+	vertexDesc[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[3].AlignedByteOffset = 32;
+	vertexDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[4].SemanticName = "TANGENT";
+	vertexDesc[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[4].AlignedByteOffset = 44;
+	vertexDesc[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 	//Create Input Layout
 	D3DX11_PASS_DESC passDesc{};
@@ -73,6 +84,40 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std
 		return;
 }
 
+void Mesh::InitializeVariables()
+{
+	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
+	if (!m_pMatWorldViewProjVariable->IsValid())
+		std::wcout << L"m_pMatWorldViewProjVariable not valid!\n";
+
+	m_pWorldMatrixVariable = m_pEffect->GetVariableByName("gWorldMatrix")->AsMatrix();
+	if (!m_pWorldMatrixVariable->IsValid())
+		std::wcout << L"m_pWorldMatrixVariable not valid!\n";
+
+	m_pViewInverseVariable = m_pEffect->GetVariableByName("gViewInverseMatrix")->AsMatrix();
+	if (!m_pViewInverseVariable->IsValid())
+		std::wcout << L"m_pViewInverseVariable not valid!\n";
+}
+
+void Mesh::InitializeTextures()
+{
+	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
+	if (!m_pDiffuseMapVariable->IsValid())
+		std::wcout << L"m_pDiffuseMapVariable is not valid!\n";
+
+	m_pNormalMapVariable = m_pEffect->GetVariableByName("gNormalMap")->AsShaderResource();
+	if (!m_pNormalMapVariable->IsValid())
+		std::wcout << L"m_pNormalMapVariable is not valid!\n";
+
+	m_pSpecularMapVariable = m_pEffect->GetVariableByName("gSpecularMap")->AsShaderResource();
+	if (!m_pSpecularMapVariable->IsValid())
+		std::wcout << L"m_pSpecularMapVariable is not valid!\n";
+
+	m_pGlossinessMapVariable = m_pEffect->GetVariableByName("gGlossinessMap")->AsShaderResource();
+	if (!m_pGlossinessMapVariable->IsValid())
+		std::wcout << L"m_pGlossinessMapVariable is not valid!\n";
+}
+
 Mesh::~Mesh()
 {
 	delete m_pEffect;
@@ -80,18 +125,24 @@ Mesh::~Mesh()
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 	if (m_pIndexBuffer) m_pIndexBuffer->Release();
 	if (m_pInputLayout) m_pInputLayout->Release();
+
+	if (m_pMatWorldViewProjVariable) m_pMatWorldViewProjVariable->Release();
+	if (m_pWorldMatrixVariable) m_pWorldMatrixVariable->Release();
+	if (m_pViewInverseVariable) m_pViewInverseVariable->Release();
+
+	if (m_pDiffuseMapVariable) m_pDiffuseMapVariable->Release();
+	if (m_pNormalMapVariable) m_pNormalMapVariable->Release();
+	if (m_pSpecularMapVariable) m_pSpecularMapVariable->Release();
+	if (m_pGlossinessMapVariable) m_pGlossinessMapVariable->Release();
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const float* pData) const
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 {
 	//1. Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//2. Set Input Layout
 	pDeviceContext->IASetInputLayout(m_pInputLayout);
-
-	//Set Matrix
-	m_pMatWorldViewProjVariable->SetMatrix(pData);
 
 	//3. Set VertexBuffer
 	constexpr UINT stride = sizeof(Vertex);
@@ -111,13 +162,63 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, const float* pData) const
 	}
 }
 
+void Mesh::Update(const dae::Matrix projectionMatrix, const dae::Matrix& inverseViewMatrix)
+{
+	dae::Matrix worldMatrix = m_ScaleMatrix * m_RotationMatrix * m_TranslationMatrix;
+	SetMatWorldViewProj(worldMatrix * inverseViewMatrix * projectionMatrix);
+	SetWorldMatrixVariable(worldMatrix);
+	SetViewInverseVariable(inverseViewMatrix);
+}
+
+void Mesh::RotateX(const float angle)
+{
+	m_RotationMatrix = dae::Matrix::CreateRotationX(angle) * m_RotationMatrix;
+}
+
+void Mesh::RotateY(const float angle)
+{
+	m_RotationMatrix = dae::Matrix::CreateRotationY(angle) * m_RotationMatrix;
+}
+
+void Mesh::RotateZ(const float angle)
+{
+	m_RotationMatrix = dae::Matrix::CreateRotationZ(angle) * m_RotationMatrix;
+}
+
+void Mesh::SetMatWorldViewProj(const dae::Matrix& matrix) const
+{
+	m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&matrix));
+}
+void Mesh::SetWorldMatrixVariable(const dae::Matrix& matrix) const
+{
+	m_pWorldMatrixVariable->SetMatrix(reinterpret_cast<const float*>(&matrix));
+}
+
+void Mesh::SetViewInverseVariable(const dae::Matrix& matrix) const
+{
+	m_pViewInverseVariable->SetMatrix(reinterpret_cast<const float*>(&matrix));
+}
+
 void Mesh::SetDiffuseMap(const dae::Texture* pDiffuseTexture) const
 {
-	if (m_pDiffuseMapVariable)
+	if (pDiffuseTexture)
 		m_pDiffuseMapVariable->SetResource(pDiffuseTexture->GetSRV());
 }
 
-void Mesh::SetPass(const int passIdx)
+void Mesh::SetNormalMap(const dae::Texture* pNormalTexture) const
 {
-	m_Pass = passIdx;
+	if (pNormalTexture)
+		m_pNormalMapVariable->SetResource(pNormalTexture->GetSRV());
+}
+
+void Mesh::SetSpecularMap(const dae::Texture* pSpecularTexture) const
+{
+	if (pSpecularTexture)
+		m_pSpecularMapVariable->SetResource(pSpecularTexture->GetSRV());
+}
+
+void Mesh::SetGlossinessMap(const dae::Texture* pGlossinessTexture) const
+{
+	if (pGlossinessTexture)
+		m_pGlossinessMapVariable->SetResource(pGlossinessTexture->GetSRV());
 }

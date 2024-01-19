@@ -148,12 +148,12 @@ namespace dae
 			if(fovChanged || arChanged)	CalculateProjectionMatrix(); //Try to optimize this - should only be called once or when fov/aspectRatio changes
 		}
 
-		Matrix GetViewMatrix()
+		Matrix GetViewMatrix() const
 		{
 			return invViewMatrix;
 		}
 
-		Matrix GetProjectionMatrix()
+		Matrix GetProjectionMatrix() const
 		{
 			return projectionMatrix;
 		}

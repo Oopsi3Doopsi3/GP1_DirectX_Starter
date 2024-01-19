@@ -62,8 +62,16 @@ namespace dae {
 		std::vector<uint32_t> indicesVehicle{};
 		Utils::ParseOBJ("Resources/vehicle.obj", verticesVehicle, indicesVehicle);
 		m_pMesh = new Mesh(m_pDevice, verticesVehicle, indicesVehicle);
+
 		m_pDiffuseTexture = Texture::LoadFromFile("Resources/vehicle_diffuse.png", m_pDevice);
+		m_pNormalTexture = Texture::LoadFromFile("Resources/vehicle_normal.png", m_pDevice);
+		m_pSpecularTexture = Texture::LoadFromFile("Resources/vehicle_specular.png", m_pDevice);
+		m_pGlossinessTexture = Texture::LoadFromFile("Resources/vehicle_gloss.png", m_pDevice);
+
 		m_pMesh->SetDiffuseMap(m_pDiffuseTexture);
+		m_pMesh->SetNormalMap(m_pNormalTexture);
+		m_pMesh->SetSpecularMap(m_pSpecularTexture);
+		m_pMesh->SetGlossinessMap(m_pGlossinessTexture);
 	}
 
 	Renderer::~Renderer()
@@ -84,14 +92,22 @@ namespace dae {
 		if(m_pDevice) m_pDevice->Release();
 
 		delete m_pMesh;
+
 		delete m_pDiffuseTexture;
+		delete m_pNormalTexture;
+		delete m_pSpecularTexture;
+		delete m_pGlossinessTexture;
 	}
 
 	void Renderer::Update(const Timer* pTimer)
 	{
 		m_Camera.Update(pTimer);
 
-		m_YawRotation += pTimer->GetElapsed() * PI / 4.f;
+		constexpr float rotationSpeed{ 45.f };
+
+		m_pMesh->RotateY(rotationSpeed * TO_RADIANS * pTimer->GetElapsed());
+		
+		m_pMesh->Update(m_Camera.projectionMatrix, m_Camera.GetViewMatrix());
 	}
 
 
@@ -106,9 +122,7 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. SET PIPELINE + INVOKE DRAW CALLS (= RENDER)
-		Matrix viewProjectionMatrix = Matrix::CreateRotationY(m_YawRotation) * m_Camera.invViewMatrix * m_Camera.projectionMatrix;
-
-		m_pMesh->Render(m_pDeviceContext, reinterpret_cast<float*>(&viewProjectionMatrix));
+		m_pMesh->Render(m_pDeviceContext);
 
 		//3. PRESENT BACKBUFFER (SWAP)
 		m_pSwapChain->Present(0, 0);

@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Effect.h"
-//#include "Texture.h"
 
 Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 {
@@ -9,27 +8,6 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 	if (!m_pTechnique->IsValid())
 		std::wcout << L"Technique not valid\n";
-	
-	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
-	if (!m_pMatWorldViewProjVariable->IsValid())
-		std::wcout << L"m_pMatWorldViewProjVariable not valid!\n";
-
-	//Texture maps
-	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
-	if (!m_pDiffuseMapVariable->IsValid())
-		std::wcout << L"m_pDiffuseMapVariable is not valid!\n";
-
-	m_pNormalMapVariable = m_pEffect->GetVariableByName("gNormalMap")->AsShaderResource();
-	if (!m_pNormalMapVariable->IsValid())
-		std::wcout << L"m_pNormalMapVariable is not valid!\n";
-
-	m_pSpecularMapVariable = m_pEffect->GetVariableByName("gSpecularMap")->AsShaderResource();
-	if (!m_pSpecularMapVariable->IsValid())
-		std::wcout << L"m_pSpecularMapVariable is not valid!\n";
-
-	m_pGlossinessMapVariable = m_pEffect->GetVariableByName("gGlossinessMap")->AsShaderResource();
-	if (!m_pGlossinessMapVariable->IsValid())
-		std::wcout << L"m_pGlossinessMapVariable is not valid!\n";
 }
 
 Effect::~Effect()
@@ -86,39 +64,12 @@ ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& ass
 	return pEffect;
 }
 
-ID3DX11Effect* Effect::GetEffect() const
-{
-	return m_pEffect;
-}
-
 ID3DX11EffectTechnique* Effect::GetTechnique() const
 {
 	return m_pTechnique;
 }
 
-ID3DX11EffectMatrixVariable* Effect::GetWorldViewProjMat() const
+ID3DX11EffectVariable* Effect::GetVariableByName(const std::string& name) const
 {
-	return m_pMatWorldViewProjVariable;
+	return m_pEffect->GetVariableByName(name.c_str());
 }
-
-ID3DX11EffectShaderResourceVariable* Effect::GetDiffuseMap() const
-{
-	return m_pDiffuseMapVariable;
-}
-
-ID3DX11EffectShaderResourceVariable* Effect::GetNormalMap() const
-{
-	return m_pNormalMapVariable;
-}
-
-ID3DX11EffectShaderResourceVariable* Effect::GetSpecularMap() const
-{
-	return m_pSpecularMapVariable;
-}
-
-ID3DX11EffectShaderResourceVariable* Effect::GetGlossinessMap() const
-{
-	return m_pGlossinessMapVariable;
-}
-
-
