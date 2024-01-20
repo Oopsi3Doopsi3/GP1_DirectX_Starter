@@ -63,6 +63,8 @@ int main(int argc, char* args[])
 					pRenderer->ToggleRotate();
 				if (e.key.keysym.scancode == SDL_SCANCODE_F6)
 					pRenderer->ToggleNormalMap();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F7)
+					pRenderer->ToggleFireFX();
 				break;
 			default: ;
 			}

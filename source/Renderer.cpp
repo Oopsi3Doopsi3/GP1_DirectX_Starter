@@ -144,10 +144,9 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. SET PIPELINE + INVOKE DRAW CALLS (= RENDER)
-		for(auto& pMesh : m_pMeshes)
-		{
-			pMesh->Render(m_pDeviceContext);
-		}
+		m_pMeshes[0]->Render(m_pDeviceContext);
+		if (m_DrawFireFX) m_pMeshes[1]->Render(m_pDeviceContext);
+
 
 		//3. PRESENT BACKBUFFER (SWAP)
 		m_pSwapChain->Present(0, 0);
@@ -311,5 +310,10 @@ namespace dae {
 		m_UseNormalMap = !m_UseNormalMap;
 		m_pMeshes[0]->SetUseNormalMap(m_UseNormalMap);
 		std::cout << "Normal map: " << m_UseNormalMap << std::endl;
+	}
+
+	void Renderer::ToggleFireFX()
+	{
+		m_DrawFireFX = !m_DrawFireFX;
 	}
 }

@@ -43,6 +43,35 @@ SamplerState samAnisotropic
 };
 
 //------------------------------------------
+//	Rasterizer State
+//------------------------------------------
+RasterizerState gRasterizerState
+{
+    CullMode = back;
+    FrontCounterClockWise = false; //default
+};
+
+//------------------------------------------
+//	Blending State
+//------------------------------------------
+BlendState gBlendState
+{
+    BlendEnable[0] = false;
+    RenderTargetWriteMask[0] = 0x0F;
+};
+
+//------------------------------------------
+//	Depth Stencil State
+//------------------------------------------
+DepthStencilState gDepthStencilState
+{
+    DepthEnable = true;
+    DepthWriteMask = 1;
+    DepthFunc = less;
+    StencilEnable = false;
+};
+
+//------------------------------------------
 //	Input/Output Structs
 //------------------------------------------
 struct VS_INPUT
@@ -138,6 +167,9 @@ technique11 DefaultTechnique
 {
 	pass P0
 	{
+        SetRasterizerState(gRasterizerState);
+        SetDepthStencilState(gDepthStencilState, 0);
+        SetBlendState(gBlendState, float4(0.f, 0.f, 0.f, 0.f), 0xFFFFFFFF);
 		SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
 		SetPixelShader( CompileShader( ps_5_0, PS_Point() ) );
@@ -145,6 +177,9 @@ technique11 DefaultTechnique
 
     pass P1
     {
+        SetRasterizerState(gRasterizerState);
+        SetDepthStencilState(gDepthStencilState, 0);
+        SetBlendState(gBlendState, float4(0.f, 0.f, 0.f, 0.f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Linear()));
@@ -152,6 +187,9 @@ technique11 DefaultTechnique
 
     pass P2
     {
+        SetRasterizerState(gRasterizerState);
+        SetDepthStencilState(gDepthStencilState, 0);
+        SetBlendState(gBlendState, float4(0.f, 0.f, 0.f, 0.f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Anisotropic()));

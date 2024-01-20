@@ -37,6 +37,7 @@ namespace dae
 		void CycleSamplerState();
 		void ToggleRotate();
 		void ToggleNormalMap();
+		void ToggleFireFX();
 
 	private:
 		SDL_Window* m_pWindow{};
@@ -81,5 +82,6 @@ namespace dae
 		SamplerState m_SamplerState = SamplerState::Point;
 		bool m_Rotate{ false };
 		bool m_UseNormalMap{ true };
+		bool m_DrawFireFX{ true };
 	};
 }
