@@ -40,7 +40,7 @@ namespace dae
 		Matrix projectionMatrix{};
 
 		float nearClippingPlane{ .1f };
-		float farClippingPlane{ 100.f };
+		float farClippingPlane{ 1000.f };
 
 		void Initialize(float aspect, float _fovAngle = 90.f, Vector3 _origin = {0.f,0.f,0.f})
 		{
@@ -72,15 +72,7 @@ namespace dae
 
 		void CalculateProjectionMatrix()
 		{
-			//ProjectionMatrix => Matrix::CreatePerspectiveFovLH(...) [not implemented yet]
-			//DirectX Implementation => https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectivefovlh
-			projectionMatrix =
-			{
-				Vector4{1.f / (aspectRatio * fov), 0, 0, 0},
-				Vector4{0, 1.f / fov, 0, 0},
-				Vector4{0, 0, farClippingPlane / (farClippingPlane - nearClippingPlane), 1},
-				Vector4{0, 0, -(farClippingPlane * nearClippingPlane) / (farClippingPlane - nearClippingPlane), 0}
-			};
+			projectionMatrix = Matrix::CreatePerspectiveFovLH(fov, aspectRatio, nearClippingPlane, farClippingPlane);
 		}
 
 		void Update(const Timer* pTimer)
@@ -91,23 +83,23 @@ namespace dae
 			//Keyboard Input
 			const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
 
-			constexpr float speed{ 30.f };
-			constexpr float mouseSpeed{ 1.f };
+			float speed{ 30.f };
 
-			if (pKeyboardState[SDL_SCANCODE_W])
-			{
+			constexpr float boost{ 2.f };
+			if (pKeyboardState[SDL_SCANCODE_LSHIFT]){
+				speed *= boost;
+			}
+
+			if (pKeyboardState[SDL_SCANCODE_W]){
 				origin += forward * speed * deltaTime;
 			}
-			if (pKeyboardState[SDL_SCANCODE_S])
-			{
+			if (pKeyboardState[SDL_SCANCODE_S]){
 				origin -= forward * speed * deltaTime;
 			}
-			if (pKeyboardState[SDL_SCANCODE_A])
-			{
+			if (pKeyboardState[SDL_SCANCODE_A]){
 				origin -= right * speed * deltaTime;
 			}
-			if (pKeyboardState[SDL_SCANCODE_D])
-			{
+			if (pKeyboardState[SDL_SCANCODE_D]){
 				origin += right * speed * deltaTime;
 			}
 
@@ -117,7 +109,7 @@ namespace dae
 			bool rightDown{ (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0};
 			bool leftDown{ (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0};
 
-			bool didRotate{ false };
+			constexpr float rotationSpeed{ 10.f };
 
 			if (leftDown && rightDown)
 			{
@@ -126,17 +118,15 @@ namespace dae
 			else if (leftDown)
 			{
 				origin -= speed * forward * float(mouseY) * deltaTime;
-				totalYaw += mouseSpeed * mouseX * deltaTime;
-				didRotate = true;
+				totalYaw += rotationSpeed * mouseX * deltaTime;
 			}
 			else if (rightDown)
 			{
-				totalYaw += speed * mouseX * deltaTime;
-				totalPitch -= speed * mouseY * deltaTime;
-				didRotate = true;
+				totalYaw += rotationSpeed * mouseX * deltaTime;
+				totalPitch -= rotationSpeed * mouseY * deltaTime;
 			}
 
-			if (didRotate)
+			if (leftDown || rightDown)
 			{
 				forward = Matrix::CreateRotation(totalPitch, totalYaw, 0.f).TransformVector(Vector3::UnitZ);
 				right = Vector3::Cross(Vector3::UnitY, forward).Normalized();

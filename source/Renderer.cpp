@@ -106,11 +106,13 @@ namespace dae {
 		m_pMeshes.clear();
 
 		delete m_pShadingEffect;
-
 		delete m_pDiffuseTexture;
 		delete m_pNormalTexture;
 		delete m_pSpecularTexture;
 		delete m_pGlossinessTexture;
+
+		delete m_pEffect;
+		delete m_pFireDiffuse;
 	}
 
 	void Renderer::Update(const Timer* pTimer)
@@ -139,7 +141,7 @@ namespace dae {
 			return;
 
 		//1. CLEAR RTV & DSV
-		constexpr float color[4] = { 0.f,0.f,0.3f,1.f };
+		constexpr float color[4] = { 0.39f,0.59f,0.93f,1.f };
 		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 

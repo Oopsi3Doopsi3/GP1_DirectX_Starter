@@ -88,14 +88,12 @@ DepthStencilState gDepthStencilState
 struct VS_INPUT
 {
     float3 Position : POSITION;
-    float3 Color : COLOR;
     float2 UV : TEXCOORD;
 };
 
 struct VS_OUTPUT
 {
     float4 Position : SV_POSITION;
-    float3 Color : COLOR;
     float2 UV : TEXCOORD;
 };
 
@@ -106,7 +104,6 @@ VS_OUTPUT VS(VS_INPUT input)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 	output.Position = mul(float4(input.Position, 1.f), gWorldViewProj);
-    output.Color = input.Color;
     output.UV = input.UV;
 	return output;
 }
